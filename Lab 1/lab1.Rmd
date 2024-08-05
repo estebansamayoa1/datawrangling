@@ -1,0 +1,78 @@
+---
+title: "Lab 1"
+author: "Esteban Samayoa"
+date: "2024-08-05"
+output: rmarkdown::github_document
+---
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+library(readxl)
+library(openxlsx)
+library(dplyr)
+library(readr)
+library(purrr)
+library(stringr)
+library(modeest)
+```
+
+# Problema 1
+```{r, echo=FALSE, message=FALSE}
+
+dir <- "/Users/estebansamayoa/Downloads/Lab1"
+archivos <- list.files(path = dir, pattern = "*.xlsx", full.names = TRUE)
+
+unir <- function(archivo) {
+  archivo_base <- basename(archivo)
+  info_fecha <- str_match(archivo_base, "(\\d{2})-(\\d{4})\\.xlsx")[,2:3]
+  mes <- info_fecha[1]
+  año <- info_fecha[2]
+  fecha <- paste0(mes, "-", año)
+  data <- read_excel(archivo)
+  data <- data %>% mutate(Fecha = fecha)
+  return(data)
+}
+
+TABLA_COMBINADA <- archivos %>% map_dfr(unir)
+
+```
+
+```{r}
+head(TABLA_COMBINADA)
+```
+```{r, echo=FALSE}
+write.xlsx(TABLA_COMBINADA, "tabla_combinada.xlsx")
+```
+
+
+
+# Problema 2
+```{r, echo=FALSE}
+
+nombres <- list(
+  c("Ana", "Juan", "Juan", "Maria", "Pedro"),
+  c("Carlos", "Carlos", "Luis", "Miguel", "Ana"),
+  c("Sofia", "Sofia", "Sofia", "Juan", "Pedro")
+)
+
+
+modas <- lapply(nombres, mfv)
+
+print("LISTA DE NOMBRES")
+print(nombres)
+print("MODA DE LA LISTA")
+print(modas)
+```
+
+# Problema 3
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+
+data <- read_delim("~/Downloads/INE_PARQUE_VEHICULAR_080219.txt", delim = "|")
+
+```
+
+```{r}
+head(data)
+```
+
+
+
