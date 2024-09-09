@@ -1,0 +1,105 @@
+---
+title: "Lab3 Esteban Samayoa"
+author: "Esteban Samayoa"
+date: "2024-08-28"
+output: rmarkdown::github_document
+---
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+library(dplyr)
+```
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+movies <- read.csv("/Users/estebansamayoa/Desktop/CS UFM/10mo Semestre/Data Wrangling/Lab3/movies.csv")
+directors <- read.csv("/Users/estebansamayoa/Desktop/CS UFM/10mo Semestre/Data Wrangling/Lab3/directors.csv")
+directors_genres <- read.csv("/Users/estebansamayoa/Desktop/CS UFM/10mo Semestre/Data Wrangling/Lab3/directors_genres.csv")
+roles <- read.csv("/Users/estebansamayoa/Desktop/CS UFM/10mo Semestre/Data Wrangling/Lab3/roles.csv")
+actors <- read.csv("/Users/estebansamayoa/Desktop/CS UFM/10mo Semestre/Data Wrangling/Lab3/actors.csv")
+movies_directors <- read.csv("/Users/estebansamayoa/Desktop/CS UFM/10mo Semestre/Data Wrangling/Lab3/movies_directors.csv")
+movies_genres <- read.csv("/Users/estebansamayoa/Desktop/CS UFM/10mo Semestre/Data Wrangling/Lab3/movies_genres.csv")
+```
+
+# Problema 1
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+number_of_movies <- movies %>%
+  summarise(total_movies = n())
+
+number_of_directors <- directors %>%
+  summarise(total_directors = n_distinct(id))
+
+print(number_of_movies)
+print(number_of_directors)
+```
+
+
+# Problema 2
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+genres_per_director <- directors_genres %>%
+  group_by(director_id) %>%
+  summarise(num_genres = n_distinct(genre))
+
+average_genres_per_director <- genres_per_director %>%
+  summarise(average_genres = mean(num_genres))
+
+print(average_genres_per_director)
+```
+
+# Problema 3
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+role_report <- roles %>%
+  group_by(role) %>%
+  summarise(
+    number_of_movies = n_distinct(movie_id),
+    number_of_people = n_distinct(actor_id)
+  )
+
+print(role_report)
+```
+
+# Problema 4
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+director_movies <- movies_directors %>%
+  inner_join(directors, by = c("director_id" = "id")) %>%
+  inner_join(movies, by = c("movie_id" = "id"))
+
+movies_per_director <- director_movies %>%
+  group_by(director_id, first_name, last_name) %>%
+  summarise(number_of_movies = n_distinct(movie_id))
+
+director_movies_with_genres <- director_movies %>%
+  inner_join(movies_genres, by = "movie_id")
+
+actors_per_director <- director_movies %>%
+  left_join(roles, by = "movie_id") %>%
+  filter(role == "actor", !is.na(actor_id)) %>%
+  group_by(director_id) %>%
+  summarise(number_of_actors = n_distinct(actor_id))
+
+common_genre_per_director <- director_movies_with_genres %>%
+  group_by(director_id, genre) %>%
+  summarise(genre_count = n()) %>%
+  slice_max(genre_count, n = 1) %>%
+  select(director_id, genre)
+
+
+director_report <- movies_per_director %>%
+  left_join(actors_per_director, by = "director_id") %>%
+  left_join(common_genre_per_director, by = "director_id")
+
+print(director_report)
+```
+
+# Problema 5
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+roles_with_directors <- roles %>%
+  inner_join(movies_directors, by = "movie_id") %>%
+  inner_join(directors, by = c("director_id" = "id")) %>%
+  select(movie_id, first_name, last_name, role)
+
+role_distribution_table <- roles_with_directors %>%
+  group_by(movie_id, first_name, last_name) %>%
+  summarise(number_of_roles = n())
+
+print(role_distribution_table)
+```
+
