@@ -1,0 +1,244 @@
+Examen Parcial I / Data Wrangling
+================
+Esteban Samayoa
+
+25/09/2024
+
+# Examen parcial
+
+Indicaciones generales:
+
+- Usted tiene el período de la clase para resolver el examen parcial.
+
+- La entrega del parcial, al igual que las tareas, es por medio de su
+  cuenta de github, pegando el link en el portal de MiU.
+
+- Pueden hacer uso del material del curso e internet (stackoverflow,
+  etc.). Sin embargo, si encontramos algún indicio de copia, se anulará
+  el exámen para los estudiantes involucrados. Por lo tanto, aconsejamos
+  no compartir las agregaciones que generen.
+
+## Sección 0: Preguntas de temas vistos en clase (20pts)
+
+- Responda las siguientes preguntas de temas que fueron tocados en
+  clase.
+
+##### 1. ¿Qué es una ufunc y por qué debemos de utilizarlas cuando programamos trabajando datos?
+
+- La ufunc es una función en numpy que se utiliza sobre matrices, o
+  arreglos que se encuentren de manera vectorizada, ya que hace
+  operaciones por cada uno de los elementos. Esto permite hacer
+  operaciones entre matrices o arreglos multidimensionales de manera mas
+  eficiente y optimizada. Permite hacer operaciones en matrices sin
+  necesidad de usar “for” o “if” de manera explicita. Al igual que ayuda
+  a optimizar el rendimiento de un codigo.
+
+##### 2. Es una técnica en programación numérica que amplía los objetos que son de menor dimensión para que sean compatibles con los de mayor dimensión. Describa cuál es la técnica y de un breve ejemplo en R.
+
+- La técnica expuesta es broadcasting, la cual es una operación que
+  extiende las dimensiones de los objetos de menor tamaño para que sean
+  compatibles con elementos de mayor tamaño, y así, poder hacer
+  operaciones aritmeticas entre ellas.
+- Un ejemplo en R sería el siguiente, ya que no existe una llamada
+  explicita como tal, como se tiene en Numpy:
+
+``` r
+v1 <- c(1, 2, 3, 4)
+v2 <- 2 
+
+resultado <- v1 * v2
+print(resultado)
+```
+
+    ## [1] 2 4 6 8
+
+- Se puede observar aqui que el 2 de hizo “broadcast” a todos los
+  elementos del array, por lo que todos los elementos del array mas
+  largo, fueron multiplicados por 2.
+
+##### 3. ¿Qué es el axioma de elegibilidad y por qué es útil al momento de hacer análisis de datos?
+
+- El axioma de elegibilidad establece que para que una opción sea válida
+  o tomada en cuenta, debe cumplir con ciertos requisitos o criterios
+  predeterminados. Es decir, solo se toman en cuenta observaciones o
+  datos, que cuenten con las caracteristicas que se buscan a la hora de
+  hacer un análisis de datos. Esto es útil a la hora de hacer un
+  análisis de datos ya que permite filtrar los datos que no sirven y
+  utilizar solo los que si nos pueden ser de utilidad a la hora de
+  resolver una incognita o probar una hipotesis. Al igual que permite
+  segmentar datos o subcategorizarlos para utilizarlos tambien como
+  conjunto o grupos con ciertas caracteristicas. Al igual que al
+  utilizar el axioma, los datos que entran al modelo son menores y no se
+  sobrecarga a la hora que debe proveer resultados.
+
+##### 4. Cuál es la relación entre la granularidad y la agregación de datos? Mencione un breve ejemplo. Luego, explique cuál es la granularidad o agregación requerida para poder generar un reporte como el siguiente:
+
+| Pais | Usuarios |
+|------|----------|
+| US   | 1,934    |
+| UK   | 2,133    |
+| DE   | 1,234    |
+| FR   | 4,332    |
+| ROW  | 943      |
+
+- La relación entre granularidad y agregación de datos es directa, que
+  ya si los datos tienen mayor granularidad, es decir, que son mas
+  detallados y profundos, al momento de hacer la agregación, es mucho
+  mas facil hacer agrupaciones o subconjuntos, ya que se pueden analizar
+  diferentes combinaciones y agrupaciones basado en las diferentes
+  caracteristicas que tienen las observaciones. Ya que si los datos no
+  cuentan con tanto detalle, es mas dificil poder hacer estas
+  agrupaciones, ya que tiene menos opciones a elegir.
+- Ejemplo: Se tiene una base de datos de ventas en una tienda, con
+  informacion como id_transaccion, cliente, producto_vendido, cantidad,
+  precio, fecha.
+  - Al tener los datos granularizados a nivel de transaccion o venta
+    individual es mas facil poder hacer agrupaciones como ventas totales
+    en un rango de fecha, ventas por producto, ventas por cliente, etc.
+    Existen muchas combinaciones que se pueden hacer con estos datos de
+    venta.
+- Respecto a la tabla: En este caso la granularidad de debe manejar por
+  usuario individual, que dentro de sus caracteristicas tenga el país al
+  cual se asocia, cada observacion individual necesita por lo menos dos
+  cosas: un id de usuario unico y un pais al cual asociarlo. En termino
+  de agrupación: Esto involucra que se sume la cantidad de id unicos de
+  cada cliente y agruparlos en terminos del pais que corresponden, ya
+  que se asi se puede obtener la cantidad de usuarios por pais en la
+  tabla como la mostrada.
+
+## Sección I: Preguntas teóricas. (50pts)
+
+- Existen 10 preguntas directas en este Rmarkdown, de las cuales usted
+  deberá responder 5. Las 5 a responder estarán determinadas por un
+  muestreo aleatorio basado en su número de carné.
+
+- Ingrese su número de carné en `set.seed()` y corra el chunk de R para
+  determinar cuáles preguntas debe responder.
+
+``` r
+set.seed("20200188") 
+v<- 1:10
+preguntas <-sort(sample(v, size = 5, replace = FALSE ))
+
+paste0("Mis preguntas a resolver son: ",paste0(preguntas,collapse = ", "))
+```
+
+    ## [1] "Mis preguntas a resolver son: 2, 3, 6, 8, 10"
+
+## “Mis preguntas a resolver son: 2, 3, 6, 8, 10”
+
+### Listado de preguntas teóricas
+
+#### 2. Al momento de filtrar en SQL, ¿cuál keyword cumple las mismas funciones que el keyword `OR` para filtrar uno o más elementos una misma columna?
+
+- Otra keyword que cumple con las mismas funciones que ‘OR’ a la hora de
+  filtrar datos en una tabla, se puede utilizar ‘IN’, el cual filtra de
+  la misma manera que lo haría un ‘OR’. En un caso concreto, se puede
+  utilizar un OR para buscar paises de la siguiente manera: WHERE pais =
+  ‘US’ OR pais = ‘UK’ OR pais = ‘DE’; mientras que con un ‘IN’ se haria
+  asi: WHERE pais IN (‘US’, ‘UK’, ‘DE’); El resultado será el mismo ya
+  que cumplen una función similar.
+
+#### 3. ¿Por qué en R utilizamos funciones de la familia apply (lapply,vapply) en lugar de utilizar ciclos?
+
+- Las funciones lapply y vapply son una alternativa que es mucho mas
+  funcional y eficiente a la hora de operar sobre estructuras de datos,
+  a comparacion de utilizar un “for” o “while. Estas funciones
+  generalmente son mas rapidas y simples, cumpliendo la misma funcion
+  que los ciclos. Ademas que lapply y vapply son mucho mas facil de leer
+  y analizar a comparacion de un ciclo el cual puede contener mas lineas
+  de texto y generalmente ser mas largas. Al igual que permite trabajar
+  con operaciones vectorizadas, buscando optimizar la operacion
+  aritmetica. Por ultimo, son mas eficientes en terminos de memoria,
+  haciendo el codigo mas eficiente y rápido.
+
+#### 6. ¿Qué es un vector y en qué se diferencia en una lista en R?
+
+- Un vector es una secuencia de elementos de un mismo tipo de datos, ya
+  sea numericos, de texto o logicos (V/F). A diferencia de una lista, la
+  cual puede contener una lista de datos de diferente tipo en una misma
+  lista, incluso puede almacenar sublistas dentro de la lista mas
+  grande. Un vector se caracteriza por contar con datos homogeneos,
+  mientras que la lista tiene datos heterogeneos.Una lista tiene mayor
+  flexibilidad para trabajar con estructuras complejas.
+
+#### 8. Si en un dataframe, a una variable de tipo `factor` le agrego un nuevo elemento que *no se encuentra en los niveles existentes*, ¿cuál sería el resultado esperado y por qué?
+
+    * El nuevo elemento
+    * `NA`
+
+- El resultado sería ‘NA’, ya que si el nuevo elemento, no se encuentra
+  en los niveles existentes, ya que un factor maneja un conjunto de
+  datos conocido y definido por los niveles existentes, y al agregar uno
+  que no se encuentra en el nivel, entonces R no puede asignarle un
+  valor y lo clasifica como un valor faltante.
+
+#### 10. Si quiero obtener como resultado las filas de la tabla A que no se encuentran en la tabla B, ¿cómo debería de completar la siguiente sentencia de SQL?
+
+- SELECT \* FROM A LEFT JOIN B ON A.KEY = B.KEY WHERE B.Key = NULL:
+
+#### Extra: ¿Cuántos posibles exámenes de 5 preguntas se pueden realizar utilizando como banco las diez acá presentadas?
+
+(responder con código de R.)
+
+## Sección II Preguntas prácticas. (30pts)
+
+- Conteste las siguientes preguntas utilizando sus conocimientos de R.
+  Adjunte el código que utilizó para llegar a sus conclusiones en un
+  chunk del markdown.
+
+A. De los clientes que están en más de un país,¿cuál cree que es el más
+rentable y por qué?
+
+B. Estrategia de negocio ha decidido que ya no operará en aquellos
+territorios cuyas pérdidas sean “considerables”. Bajo su criterio,
+¿cuáles son estos territorios y por qué ya no debemos operar ahí?
+
+### I. Preguntas teóricas
+
+## A
+
+``` r
+parcial_anonimo <- readRDS('/Users/estebansamayoa/Library/Mobile Documents/com~apple~CloudDocs/CS UFM/10mo Semestre/Data Wrangling/ParcialDataWrangling2024/parcial_anonimo.rds')
+```
+
+    ## # A tibble: 7 × 2
+    ##   Cliente  Total_Venta_Global
+    ##   <chr>                 <dbl>
+    ## 1 a17a7558             19818.
+    ## 2 ff122c3f             15359.
+    ## 3 c53868a0             13813.
+    ## 4 044118d4              9436.
+    ## 5 f676043b              3635.
+    ## 6 f2aab44e               400.
+    ## 7 bf1e94e9                 0
+
+- El cliente mas rentable (es decir que mayor compras realiza) que está
+  en mas de una país es el que tiene el codigo: a17a7558, con unas
+  ventas globales de 19817.70 dolares. Esto es en base a los clientes
+  que aparecen en la tabla anterior, la cual muestra los clientes
+  internacionales y sus ventas y podemos observar que el mayor es el
+  cliente: a17a7558.
+
+## B
+
+    ## # A tibble: 5 × 2
+    ##   Territorio Total_Ventas
+    ##   <chr>             <dbl>
+    ## 1 e6fd9da9           18.2
+    ## 2 13b223c9           49.9
+    ## 3 368301e2          121. 
+    ## 4 79428560          132  
+    ## 5 e034e3c8          247.
+
+- En base a la tabla generada, podemos observar los 5 territorios que
+  menos ventas tienen, a pesar de que no son negativas las ventas, por
+  lo cual no hay perdida, las ventas son minimas y talvez no cubren los
+  costos de distribución que requiere distribuir a dichas areas.
+  Realmente dejaria de trabajar con los territorios e6fd9da9 y 13b223c9,
+  ya que su total de ventas es el menor de todos y por una diferencia
+  grande, los otros territorios se mantienen arriba de 100, por lo que
+  podria hacerse una estrategia para aumentar ventas, pero los dos
+  territorios con menos de 100 dolares en ventas, no son rentables ya
+  que probablemente no cubren los costos de distribucion a dichos
+  territorios.
