@@ -1,0 +1,116 @@
+---
+title: "Lab 7"
+author: "Esteban Samayoa"
+date: "2024-10-21"
+output: rmarkdown::github_document
+---
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+library(dplyr)
+library(stringr)
+library(tm)
+library(wordcloud)
+
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+health_data <- read.csv("/Users/estebansamayoa/Library/Mobile Documents/com~apple~CloudDocs/CS UFM/10mo Semestre/Data Wrangling/Clase 9 octubre/Health_and_Personal_Care.csv")
+
+health_metadata <- read.csv('/Users/estebansamayoa/Library/Mobile Documents/com~apple~CloudDocs/CS UFM/10mo Semestre/Data Wrangling/Clase 9 octubre/Health_and_Personal_Care_metadata.csv')
+
+```
+
+### Columnas Health Data 
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+colnames(health_data)
+```
+### Columnas Health MetaData
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+colnames(health_metadata)
+```
+
+### Cuántos productos contienen reviews con las palabras “love”, “recommend” y “enjoy”?
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+filtered_reviews <- health_data %>%
+  filter(!is.na(text)) %>%
+  filter(str_detect(text, regex("love", ignore_case = TRUE)) &
+         str_detect(text, regex("recommend", ignore_case = TRUE)) &
+         str_detect(text, regex("enjoy", ignore_case = TRUE)))
+
+
+num_products <- nrow(filtered_reviews)
+
+num_products
+```
+
+
+### De los reviews de la pregunta 1, encuentre el top 5 de las tiendas que los venden?
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+merged_data <- filtered_reviews %>%
+  inner_join(health_metadata, by = "parent_id")
+
+top_stores <- merged_data %>%
+  count(store, sort = TRUE) %>%
+  slice_max(n = 5, order_by = n)
+
+top_stores
+```
+
+
+### Genere un wordcloud sin stopwords de los reviews de la pregunta 1.
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+corpus <- Corpus(VectorSource(filtered_reviews$text))
+
+corpus_clean <- tm_map(corpus, content_transformer(tolower))
+corpus_clean <- tm_map(corpus_clean, removePunctuation)
+corpus_clean <- tm_map(corpus_clean, removeNumbers)
+corpus_clean <- tm_map(corpus_clean, removeWords, stopwords("en"))
+
+
+dtm <- TermDocumentMatrix(corpus_clean)
+
+
+m <- as.matrix(dtm)
+word_freq <- sort(rowSums(m), decreasing = TRUE)
+
+
+set.seed(1234)
+wordcloud(names(word_freq), freq = word_freq, min.freq = 2, max.words = 100, random.order = FALSE)
+```
+
+
+### Generar un wordcloud de los reviews de las 5 tiendas encontradas en la pregunta 2. Deberá de incluir todos los reviews de esas 5 tiendas.
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+top_5_stores <- top_stores$store
+
+reviews_top_stores <- merged_data %>%
+  filter(store %in% top_5_stores)
+
+corpus_top_stores <- Corpus(VectorSource(reviews_top_stores$text))
+
+corpus_clean_top_stores <- tm_map(corpus_top_stores, content_transformer(tolower))
+corpus_clean_top_stores <- tm_map(corpus_clean_top_stores, removePunctuation)
+corpus_clean_top_stores <- tm_map(corpus_clean_top_stores, removeNumbers)
+corpus_clean_top_stores <- tm_map(corpus_clean_top_stores, removeWords, stopwords("en"))
+
+dtm_top_stores <- TermDocumentMatrix(corpus_clean_top_stores)
+
+m_top_stores <- as.matrix(dtm_top_stores)
+word_freq_top_stores <- sort(rowSums(m_top_stores), decreasing = TRUE)
+
+set.seed(1234)
+wordcloud(names(word_freq_top_stores), freq = word_freq_top_stores, min.freq = 2, max.words = 100, random.order = FALSE)
+```
+
+### Cuáles son las 25 palabras más frecuentes de los reviews?
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+dtm <- TermDocumentMatrix(corpus_clean)
+
+m <- as.matrix(dtm)
+word_freq <- sort(rowSums(m), decreasing = TRUE)
+
+top_25_words <- head(word_freq, 25)
+
+top_25_words
+```
+
